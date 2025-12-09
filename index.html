@@ -252,23 +252,19 @@
 
         // --- UI Components ---
 
-        // 3. UPDATED: Navigation with AgiBot & About Us
         const Navigation = () => {
             const [logoError, setLogoError] = useState(false);
-            // Removed aboutIconError state as we switched to text-only
 
             return (
                 <nav className="sticky top-0 z-50 w-full bg-white/80 backdrop-blur-md border-b border-gray-200/50 shadow-sm">
                     <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
-                        {/* Left Side: Logos & Title - Highly Occupy Banner */}
                         <div className="flex items-center gap-6 h-full">
-                            {/* AgiBot Logo / Link - Maximized Height */}
                             <a href="https://www.agibot.com" target="_blank" className="group h-full flex items-center opacity-90 hover:opacity-100 transition-opacity py-1">
                                 {!logoError ? (
                                     <img 
                                         src="./figs/agibot_logo.png" 
                                         alt="AgiBot" 
-                                        className="h-9 w-auto object-contain" // Increased height to fill banner better
+                                        className="h-9 w-auto object-contain" 
                                         onError={() => setLogoError(true)} 
                                     />
                                 ) : (
@@ -279,16 +275,13 @@
                                 )}
                             </a>
                             
-                            {/* Divider - Taller */}
                             <div className="h-8 w-px bg-gray-300"></div>
 
-                            {/* Project Title - Larger */}
                             <a href="#" className="font-bold text-xl tracking-tight text-textMain hover:text-brand transition-colors">
                                 UniFACT
                             </a>
                         </div>
 
-                        {/* Right Side: Navigation Links & About Us */}
                         <div className="flex items-center gap-1 md:gap-8">
                             <div className="hidden md:flex items-center gap-8">
                                 <a href="#demos" className="nav-link">Demos</a>
@@ -297,7 +290,6 @@
                                 <a href="#experiments" className="nav-link">Results</a>
                             </div>
                             
-                            {/* About Us Button - Simplified to Plain Text Link */}
                             <a 
                                 href="https://www.agibot.com" 
                                 target="_blank" 
@@ -311,16 +303,55 @@
             );
         };
 
+        // 4. PERFORMANCE FIX: VideoPlayer with IntersectionObserver
         const VideoPlayer = ({ src, label, children, className, id, activeVideoId, onToggleAudio }) => {
             const videoRef = useRef(null);
+            const containerRef = useRef(null); // Ref for the container to observe
             const [progress, setProgress] = useState(0);
             const isUnmuted = activeVideoId === id;
 
+            // Manage Mute State
             useEffect(() => {
                 if (videoRef.current) {
                     videoRef.current.muted = !isUnmuted;
                 }
             }, [isUnmuted]);
+
+            // PERFORMANCE: Intersection Observer to play/pause videos
+            useEffect(() => {
+                const video = videoRef.current;
+                const container = containerRef.current;
+                
+                if (!video || !container) return;
+
+                const observer = new IntersectionObserver((entries) => {
+                    entries.forEach(entry => {
+                        // If video is visible (intersecting)
+                        if (entry.isIntersecting) {
+                            // Attempt to play. Handle the Promise to avoid errors if interrupted.
+                            const playPromise = video.play();
+                            if (playPromise !== undefined) {
+                                playPromise.catch(error => {
+                                    // Auto-play was prevented. This is common if user hasn't interacted with page yet.
+                                    // Usually fine since we start muted.
+                                    console.log("Auto-play prevented (normal behavior until interaction):", error);
+                                });
+                            }
+                        } else {
+                            // Pause if out of view to save resources
+                            video.pause();
+                        }
+                    });
+                }, {
+                    threshold: 0.5 // Play when 50% visible
+                });
+
+                observer.observe(container);
+
+                return () => {
+                    if (container) observer.unobserve(container);
+                };
+            }, []);
 
             const handleToggle = (e) => {
                 e.stopPropagation(); 
@@ -347,14 +378,19 @@
             };
 
             return (
-                <div className={`relative w-full h-full group bg-black cursor-pointer overflow-hidden ${className}`} onClick={handleToggle}>
+                <div 
+                    ref={containerRef} // Observe this container
+                    className={`relative w-full h-full group bg-black cursor-pointer overflow-hidden ${className}`} 
+                    onClick={handleToggle}
+                >
                     <video 
                         ref={videoRef}
                         className="w-full h-full object-cover opacity-90 group-hover:opacity-100 transition-opacity"
                         muted={!isUnmuted}
                         loop 
-                        autoPlay 
                         playsInline
+                        preload="metadata" // Don't download entire video immediately
+                        // REMOVED: autoPlay (Handled by IntersectionObserver now)
                         src={src}
                         onTimeUpdate={handleTimeUpdate}
                     />
