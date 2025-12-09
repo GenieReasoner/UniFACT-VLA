@@ -50,8 +50,8 @@
 
         /* 2. ENHANCED BOLD TEXT: Global override to make bold text much stronger */
         strong, b, .font-bold {
-            font-weight: 700 !important; /* Extra Bold */
-            color: #1a1a1a; /* Pure Black - Restored without !important to allow overrides */
+            font-weight: 800; /* Adjusted: Reduced from 800 (ExtraBold) to 700 (Bold) */
+            color: #464444;   /* Adjusted: Changed from #000000 (Pure Black) to #1a1a1a (Soft Black/TextMain) */
         }
 
         /* Text Shadow for Video Overlays */
@@ -239,11 +239,11 @@
                 { title: "Shelf Organizing", desc: "Reset misplaced items", src: "./videos/reasoning_error.mp4" } 
             ],
             generalization: [ 
-                { title: "Water Bottle", desc: "I'm thirsty, but I'm trying to lose weight. Please give me a suitable drink.", src: "./videos/gen_water.mp4", src_fpv: "./videos/gen_water_fpv.mp4" }, 
-                { title: "Red Pen", desc: "I want to write, please give me the corresponding items.", src: "./videos/gen_pen.mp4", src_fpv: "./videos/gen_pen_fpv.mp4" }, 
-                { title: "White Wadded Paper", desc: "Pick up desktop trash.", src: "./videos/gen_paper.mp4", src_fpv: "./videos/gen_paper_fpv.mp4" }, 
-                { title: "Remote Control", desc: "I want to watch TV and switch channels. Please provide me with the corresponding items.", src: "./videos/gen_remote.mp4", src_fpv: "./videos/gen_remote_fpv.mp4" }, 
-                { title: "Charging Cable", desc: "My phone is out of battery, please give me the corresponding item.", src: "./videos/gen_cable.mp4", src_fpv: "./videos/gen_cable_fpv.mp4" } 
+                { title: "Water Bottle", desc: "UserPrompt: I'm thirsty, but I'm trying to lose weight. Please give me a suitable drink.", src: "./videos/gen_water.mp4", src_fpv: "./videos/gen_water_fpv.mp4" }, 
+                { title: "Red Pen", desc: "UserPrompt: I want to write, please give me the corresponding items.", src: "./videos/gen_pen.mp4", src_fpv: "./videos/gen_pen_fpv.mp4" }, 
+                { title: "White Wadded Paper", desc: "UserPrompt: Pick up desktop trash.", src: "./videos/gen_paper.mp4", src_fpv: "./videos/gen_paper_fpv.mp4" }, 
+                { title: "Remote Control", desc: "UserPrompt: I want to watch TV and switch channels. Please provide me the corresponding items.", src: "./videos/gen_remote.mp4", src_fpv: "./videos/gen_remote_fpv.mp4" }, 
+                { title: "Charging Cable", desc: "UserPrompt: My phone is out of battery, please give me the corresponding item.", src: "./videos/gen_cable.mp4", src_fpv: "./videos/gen_cable_fpv.mp4" } 
             ],
             instruction: [ 
                 { title: "Semantic Understanding", desc: "Step-by-step control enabling precise following of cake details and layer placement.", src: "./videos/instr_cake.mp4" }, 
@@ -556,13 +556,11 @@
                                                         <div className="relative border-b border-white/10 overflow-hidden">
                                                             <VideoPlayer 
                                                                 src={item.src} 
-                                                                label="3rd Person"
                                                             />
                                                         </div>
                                                         <div className="relative overflow-hidden">
                                                             <VideoPlayer 
                                                                 src={item.src_fpv || item.src} 
-                                                                label="1st Person"
                                                             >
                                                                 <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/90 via-black/50 to-transparent pointer-events-none flex flex-col items-center justify-end text-center">
                                                                     <h5 className="!text-white text-sm font-bold sans-font text-shadow leading-tight mb-1">{item.title}</h5>
